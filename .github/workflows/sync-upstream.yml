@@ -1,0 +1,26 @@
+name: Sync fork from upstream
+
+# Mirror-fork auto-sync (no PAT needed): this branch (sync-bot) is the default
+# branch so the schedule fires; `main` is kept a byte-identical mirror of
+# upstream nextlevelbuilder/ui-ux-pro-max-skill via force-push. Content flows
+# into sirendhead/skills-library separately through its weekly sync-imports.yml.
+
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Force-sync main from upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git clone --bare https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git upstream
+          cd upstream
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" main:main
